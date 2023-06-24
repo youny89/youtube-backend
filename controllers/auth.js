@@ -5,6 +5,36 @@ import errorResponse from "../utils/errorResponse.js";
 import User from "../models/User.js"
 import sendEmail from "../utils/sendEmail.js";
 
+// @route POST /api/auth/social/:provider
+export const socialLogin = asyncHandler(async(req,res)=>{
+    const { provider } = req.params;
+    if (!provider) throw errorResponse('No provoider', 400);
+    if(!req.body.email) throw errorResponse('missing required field.', 400);
+
+    let user = await User.findOne({email: req.body.email});
+    if(user) {
+        if(provider === 'google') user.signInGoogle = true;
+        await user.save();
+    }else{
+        user = await User.create({
+            signInGoogle : provider === 'google' ? true:false,
+            ...req.body
+        });
+    }
+
+    const accessToken = user.generateJwtToken()
+    const options = {
+        expires : new Date(Date.now() + 1000 * 60 * 60 * 24 * process.env.JWT_COOKIE_EXPIRE ),
+        httpOnly: true,
+        secure : process.env.NODE_ENV === 'productions' ? true : false
+    }
+
+    res
+        .cookie('token', accessToken, options)
+        .json(user);
+
+})
+
 // @route POST /api/auth/login 
 export const login = asyncHandler(async(req,res) => {
     const {email, password} = req.body;

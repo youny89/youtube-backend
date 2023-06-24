@@ -19,9 +19,11 @@ const UserSchema = new mongoose.Schema({
     },
     password:{
         type:String,
-        required:['비밀번호를 입력해주세요'],
-        minLength:[6,'최소 6글자 이상 입력해주세요.'],
         select:false
+    },
+    signInGoogle:{
+        type:Boolean,
+        default:false
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
