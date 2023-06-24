@@ -98,7 +98,10 @@ export const signup = asyncHandler(async(req,res) => {
 
 // @route POST /api/auth/logout 
 export const logout = asyncHandler(async(req,res) => {
-    res.json('logout')
+    res.clearCookie('token')
+        .status(200)
+        .json('로그아웃');
+    
 })
 
 // @route POST /api/auth/logout 
