@@ -42,7 +42,7 @@ export const update = asyncHandler(async(req,res) => {
 })
 
 /**
- * @route DELETE /apoi/video/:id
+ * @route DELETE /api/video/:id
  */
 export const deleteVideo = asyncHandler(async(req,res) => {
     const video = await Video.findById(req.params.id);
@@ -61,13 +61,14 @@ export const deleteVideo = asyncHandler(async(req,res) => {
 export const like = asyncHandler(async(req,res) => {
     const isValid = ObjectId.isValid(req.params.id);
     if(!isValid) throw errorResponse('잘못된 접근 방식이빈다.',400);
+    
+    const video = await Video.findById(req.params.id);
 
-    await Video.findByIdAndUpdate(
-        req.params.id,
-        { $addToSet : { likes : req.user._id} },
-        { $pull : { disLikes : req.user._id} }
-    )
-
+    if(video.likes.includes(req.user._id)){
+        await video.updateOne({$pull : { likes : req.user._id}})
+    } else {
+        await video.updateOne({$addToSet : { likes : req.user._id}})
+    }
     res.json('좋아요 완료.')
 });
 
@@ -79,11 +80,14 @@ export const dislike = asyncHandler(async(req,res) => {
     const isValid = ObjectId.isValid(req.params.id);
     if(!isValid) throw errorResponse('잘못된 접근 방식이빈다.',400);
 
-    await Video.findByIdAndUpdate(
-        req.params.id,
-        { $addToSet : { disLikes : req.user._id} },
-        { $pull : { likes : req.user._id} }
-    )
+    const video = await Video.findById(req.params.id);
+
+    if(video.likes.includes(req.user._id)){
+        await video.updateOne({$pull : { disLikes : req.user._id}})
+    } else {
+        await video.updateOne({$addToSet : { disLikes : req.user._id}})
+    }
+
     res.json('싫어요 완료.')
 }) 
 

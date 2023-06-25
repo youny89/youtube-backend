@@ -7,6 +7,7 @@ import connectDB from "./config/db.js";
 import authRouter from "./routes/auth.js";
 import userRouter from "./routes/user.js";
 import videoRouter from "./routes/video.js";
+import commentRouter from "./routes/comment.js";
 
 import { notFound, errorHandler } from "./middleware/error.js";
 
@@ -23,7 +24,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth',authRouter);
 app.use('/api/user',userRouter);
 app.use('/api/video',videoRouter);
-app.use(notFound);
+app.use('/api/comment',commentRouter);
 app.use(errorHandler);
+app.use(notFound);
 
 app.listen(PORT , ()=> console.log('서버 시작.'))
