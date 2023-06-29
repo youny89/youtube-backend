@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler"
 import errorResponse from "../utils/errorResponse.js";
 import Video from "../models/Video.js"
+import User from "../models/User.js"
 import mongoose from "mongoose"
 
 const { ObjectId } = mongoose.Types;
@@ -18,9 +19,8 @@ export const create = asyncHandler(async(req,res) => {
         },
         creatorId: req.user._id
     });
-
+    await User.findByIdAndUpdate(req.user._id, { $inc : { numberOfVideos : 1 }})
     await newVideo.save();
-
     res.json(newVideo)
 })
 
@@ -50,6 +50,7 @@ export const deleteVideo = asyncHandler(async(req,res) => {
     if(video.creatorId.toString() !== req.user._id.toString()) throw errorResponse('해당 비디오에 접근 할수 없습니다.',403)
 
     await Video.findByIdAndDelete(req.params.id)
+    await User.findByIdAndUpdate(req.user._id, { $inc : { numberOfVideos : -1 }})
     res.status(200).json('비디오 삭제 완료.');
 
 })

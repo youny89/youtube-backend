@@ -33,15 +33,17 @@ export const getUserbyId = asyncHandler(async(req,res) => {
  * @private
  */
 export const updateDetail = asyncHandler(async(req,res) => {
-    const {email, name} = req.body;
-    if(!email && !name) throw errorResponse('데이터를 입력해주세요',400);
+    const { name, description, email } = req.body;
+    if(!description && !name && !email ) throw errorResponse('데이터를 입력해주세요',400);
+    const checkEmail = await User.findOne({email});
+    if(checkEmail) throw errorResponse('이미 존재하는 이메일 입니다.',400);
 
-    if(email) req.user.email = email;
+    if(description) req.user.description = description;
     if(name) req.user.name = name;
+    if(email) req.user.email = email;
     
     const updatedUser = await req.user.save()
-    console.log('updatedUser : ', updatedUser);
-    res.json('updated.')
+    res.json(updatedUser)
 })
 /**
  * @routes put /api/user/avatar
@@ -62,7 +64,6 @@ export const updateAvatar = asyncHandler(async(req,res) => {
     res.json('updated.')
 })
 
-
 /**
  * @routes DELETE /api/user
  * @private
@@ -75,32 +76,40 @@ export const deleteUser = asyncHandler(async(req,res) => {
 /**
  * @routes PUT /api/user/subscribe/:id
  * @private
+ * 
  */
 export const subscribe = asyncHandler(async(req,res) => {
     const isValid = ObjectId.isValid(req.params.id);
     if(!isValid) throw errorResponse('잘못된 접근 방식이빈다.',400);
-
-    const user = await User.findOne({
-        _id: req.user._id,
-        subscribedUsers : { $in : req.params.id}
+    
+    await User.findByIdAndUpdate(req.user._id,{
+        $push : { subscribedUsers : req.params.id}
+    });
+    
+    await User.findByIdAndUpdate(req.params.id,{
+        $inc : { numberOfSubscribers : 1 }
     });
 
-    //구독 하기
-    if(user) {
-        await User.findByIdAndUpdate(req.user._id, {
-            $pull : { subscribedUsers : req.params.id }
-        })
-        await User.findByIdAndUpdate(req.params.id,{ $inc : { numberOfSubscribers: 1}});
+    res.status(200).json('구독 완료.')
+}) 
 
-        res.json('구독 완료.')
-    // 구독 취소
-    } else {
-        await User.findByIdAndUpdate(
-            req.user._id,
-            { $push : { subscribedUsers : req.params.id }
-        })
-        await User.findByIdAndUpdate(req.params.id,{ $inc : { numberOfSubscribers: -1}},{ new: true});
-        res.json('구독 취소 완료.')
-    }
+/**
+ * @routes PUT /api/user/unsubscribe/:id
+ * @private
+ */
+export const unSubscribe = asyncHandler(async(req,res) => {
+    console.log('[unSubscribe]')
+    if(!ObjectId.isValid(req.params.id)) throw errorResponse('잘못된 접근 방식이빈다.',400);
+
+    await User.findByIdAndUpdate(req.user._id,{
+        $pull : { subscribedUsers : req.params.id}
+    });
+    
+    await User.findByIdAndUpdate(req.params.id,{
+        $inc : { numberOfSubscribers : -1 }
+    });
+            
+ 
+    res.status(200).json('구독 취소 완료.')
 }) 
 

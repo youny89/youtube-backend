@@ -7,7 +7,7 @@ const VideoSchema = new mongoose.Schema({
     },
     creator: {
         name:String,
-        avatar:String
+        avatar:String,
     },
     title: {
         type:String,

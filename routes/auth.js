@@ -6,7 +6,6 @@ import { login,
     socialLogin
  } from "../controllers/auth.js"
 
-import { protect } from "../middleware/auth.js"
  
 const router = Router();
 

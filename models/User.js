@@ -17,6 +17,10 @@ const UserSchema = new mongoose.Schema({
             '올바른 이메일 형식으로 작성해 주세요.',
         ]
     },
+    description:{
+        type:String,
+        maxLength:[100,'최대 100 글자까지 입력 가능합니다.']
+    },
     password:{
         type:String,
         select:false
@@ -41,7 +45,11 @@ const UserSchema = new mongoose.Schema({
         type:Number,
         defalut:0
     },
-    subscribedUsers:[{ type: mongoose.Types.ObjectId, ref:"User" }]
+    numberOfVideos : {
+        type:Number,
+        defalut:0
+    },
+    subscribedUsers:[{ type: mongoose.Types.ObjectId, ref:"User" }],
 
 },{ timestamps: true});
 

@@ -41,7 +41,13 @@ export const login = asyncHandler(async(req,res) => {
     if(!email || !password) throw errorResponse('모든 데이터 필드를 입력해주세요',400)
 
     const user = await User.findOne({email}).select('+password')
-    if(!user || !await user.comparePassword(password)) throw errorResponse('이메일 혹은 비밀번호가 일치하지 않습니다.',400)
+
+    if(!user) throw errorResponse('이메일 혹은 비밀번호가 일치하지 않습니다.',400)
+    if(user && !user.password) throw errorResponse('이미 존재하는 계정입니다. 로그인 후 연동 해주세요.',400)
+    
+    const isMatched = await user.comparePassword(password) 
+    if(!isMatched) throw errorResponse('이메일 혹은 비밀번호가 일치하지 않습니다.',400)
+    
 
     await user.save({ validateBeforeSave: false });
 
@@ -63,7 +69,7 @@ export const login = asyncHandler(async(req,res) => {
 // @route POST /api/auth/signup 
 export const signup = asyncHandler(async(req,res) => {
     const { name, email, password} = req.body;
-    if(!name || !email || !password) throw errorResponse('모든 데이터 필드를 입력해주세요',400)
+    if(!email || !password) throw errorResponse('모든 데이터 필드를 입력해주세요',400)
     if(await User.findOne({email}) ) throw  errorResponse('이미 존재하는 이메일입니다.',400)
 
     const user = await User.create({name, email, password});
@@ -90,10 +96,11 @@ export const signup = asyncHandler(async(req,res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV==='production' ? true:false
     }
+    const { password:_, ...others} = user._doc;
 
     res.status(200)
-        .cookie('token',jwtToken, options)
-        .json({success:true, })
+    .cookie('token',jwtToken, options)
+    .json(others)
 })
 
 // @route POST /api/auth/logout 

@@ -8,6 +8,7 @@ import authRouter from "./routes/auth.js";
 import userRouter from "./routes/user.js";
 import videoRouter from "./routes/video.js";
 import commentRouter from "./routes/comment.js";
+import subscribeRouter from "./routes/subscribe.js";
 
 import { notFound, errorHandler } from "./middleware/error.js";
 
@@ -25,6 +26,7 @@ app.use('/api/auth',authRouter);
 app.use('/api/user',userRouter);
 app.use('/api/video',videoRouter);
 app.use('/api/comment',commentRouter);
+app.use('/api/subscribe',subscribeRouter);
 app.use(errorHandler);
 app.use(notFound);
 

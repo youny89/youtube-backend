@@ -5,7 +5,8 @@ import {
     deleteUser,
     updateDetail,
     subscribe,
-    updateAvatar
+    updateAvatar,
+    unSubscribe,
 } from "../controllers/users.js"
 
 import { protect } from "../middleware/auth.js"
@@ -17,6 +18,7 @@ const router = Router();
 router.get('/me',protect,getMe)
 router.get('/:id',getUserbyId)
 router.put('/subscribe/:id',protect,subscribe);
+router.put('/unsubscribe/:id',protect,unSubscribe);
 router.put('/avatar',protect,updateAvatar);
 router.put('/',protect,updateDetail);
 router.delete('/',protect,deleteUser)
